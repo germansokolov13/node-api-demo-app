@@ -1,0 +1,3 @@
+export default {
+  frontendOrigin: 'http://localhost:3000',
+};

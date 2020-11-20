@@ -1,0 +1,32 @@
+version: '3.4'
+services:
+  #  redis:
+  #    image: redis
+  #    volumes:
+  #      - ./run/dev/redis-data:/data
+  #    ports:
+  #      - "6379:6379"
+  #    healthcheck:
+  #      test: "redis-cli ping"
+  #      start_period: 10s
+  #      interval: 5s
+  #      retries: 5
+  #      timeout: 5s
+  sphinx:
+    build: docker/sphinx
+    depends_on:
+      - mongo
+    ports:
+      - 9306:9306
+    volumes:
+      - ./var/sphinx/data:/usr/local/sphinx/var/data/
+      - ./var/sphinx/logs:/usr/local/sphinx/var/log/
+  mongo:
+    image: mongo:4.4.1-bionic
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
+    ports:
+      - 27017:27017
+    volumes:
+      - ./var/mongo/data:/data/db

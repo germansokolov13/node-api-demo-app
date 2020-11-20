@@ -1,0 +1,1 @@
+* * * * * indexer --all --rotate -c /etc/sphinxsearch/sphinx.conf >> /var/log/sphinx_cron.log 2>&1
