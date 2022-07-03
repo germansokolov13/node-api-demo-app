@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PostingsController } from './postings.controller';
 import { PostingsService } from './postings.service';
-import { Posting, PostingSchema } from '../schemas/posting.schema';
+import { Posting, PostingSchema } from '../../schemas/posting.schema';
 
 @Module({
   imports: [

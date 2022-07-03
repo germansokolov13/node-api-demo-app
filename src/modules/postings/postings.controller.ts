@@ -1,16 +1,23 @@
-import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { PostingsService } from './postings.service';
-import { Posting } from '../schemas/posting.schema';
+import { Posting } from '../../schemas/posting.schema';
 import { CreatePostingDto } from './createPosting.dto';
 
 @Controller('postings')
 export class PostingsController {
-  constructor(
-    private postingService: PostingsService,
-  ) {}
+  constructor(private postingService: PostingsService) {}
 
-  @Get('/get-List')
-  getList(): Promise<Posting[]> {
+  @Get('/get-list')
+  getList(@Request() req): Promise<Posting[]> {
+    console.log(req.user);
     return this.postingService.getList();
   }
 
@@ -23,7 +30,9 @@ export class PostingsController {
   }
 
   @Post('/create')
-  async createPosting(@Body() createPostingDto: CreatePostingDto): Promise<void> {
+  async createPosting(
+    @Body() createPostingDto: CreatePostingDto,
+  ): Promise<void> {
     await this.postingService.create(createPostingDto);
   }
 }

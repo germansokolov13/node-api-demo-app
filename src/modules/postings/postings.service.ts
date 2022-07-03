@@ -1,7 +1,7 @@
 import { Pool, createPool } from 'mysql';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Posting, PostingDocument } from '../schemas/posting.schema';
+import { Posting, PostingDocument } from '../../schemas/posting.schema';
 import { Model } from 'mongoose';
 import { CreatePostingDto } from './createPosting.dto';
 
@@ -10,7 +10,8 @@ export class PostingsService {
   sphinxConnectionPool: Pool;
 
   constructor(
-    @InjectModel(Posting.name) private postingModel: Model<PostingDocument>,
+    @InjectModel(Posting.name)
+    private readonly postingModel: Model<PostingDocument>,
   ) {
     this.sphinxConnectionPool = createPool({
       connectionLimit: 10,
@@ -25,10 +26,7 @@ export class PostingsService {
   }
 
   async getList(): Promise<Posting[]> {
-    return this.postingModel
-      .find()
-      .sort([['createdAt', -1]])
-      .exec();
+    return this.postingModel.find().sort('createdAt desc').exec();
   }
 
   async querySearch(searchWords: string): Promise<Posting[]> {
@@ -46,11 +44,13 @@ export class PostingsService {
       },
     );
 
+    const ids = indexHits.map((hit) => hit.mongoid);
+
     return this.postingModel
       .find({
-        _id: { $in: indexHits.map((hit) => hit.mongoid as any) },
+        _id: { $in: ids },
       })
-      .sort([['createdAt', -1]])
+      .sort('createdAt desc')
       .exec();
   }
 }
