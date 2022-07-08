@@ -1,14 +1,18 @@
 import * as sharp from 'sharp';
 import { Controller } from '@nestjs/common';
-import { EventPattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { InjectS3, S3 } from 'nestjs-s3';
 import { Create } from 'sharp';
+import { PostingsService } from '../postings/postings.service';
 
 sharp.cache(false);
 
 @Controller()
 export class ImageConsumerController {
-  constructor(@InjectS3() private readonly s3: S3) {}
+  constructor(
+    @InjectS3() private readonly s3: S3,
+    private readonly postingService: PostingsService,
+  ) {}
 
   getRect(metadata, brightness: number) {
     return {
@@ -21,8 +25,8 @@ export class ImageConsumerController {
     };
   }
 
-  @EventPattern('image-upload')
-  async processImage({ s3Key }): Promise<void> {
+  @MessagePattern('image-upload')
+  async processImage({ s3Key, user }): Promise<any> {
     console.log('got from q', s3Key);
     const params = {
       Bucket: 'image-uploads',
@@ -136,20 +140,11 @@ export class ImageConsumerController {
       Key: s3Key,
     };
     await this.s3.putObject(putParams).promise();
-    // const putParams1 = {
-    //   Body: mids,
-    //   ContentType: image.ContentType,
-    //   Bucket: 'image-upload-results',
-    //   Key: s3Key+'1',
-    // };
-    // await this.s3.putObject(putParams1).promise();
-    // const putParams2 = {
-    //   Body: darks,
-    //   ContentType: image.ContentType,
-    //   Bucket: 'image-upload-results',
-    //   Key: s3Key+'2',
-    // };
-    // await this.s3.putObject(putParams2).promise();
+
+    await this.postingService.createImage(s3Key, user);
+
     console.log('done');
+
+    return 'yes';
   }
 }

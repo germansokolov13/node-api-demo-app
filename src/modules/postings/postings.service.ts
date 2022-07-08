@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Posting, PostingDocument } from '../../schemas/posting.schema';
 import { Model } from 'mongoose';
 import { CreatePostingDto } from './createPosting.dto';
+import { UserDto } from '../auth/user.dto';
 
 @Injectable()
 export class PostingsService {
@@ -20,13 +21,33 @@ export class PostingsService {
     });
   }
 
-  async create(createPostingDto: CreatePostingDto): Promise<void> {
-    const posting = new this.postingModel(createPostingDto);
+  async create(createPostingDto: CreatePostingDto, user: UserDto): Promise<void> {
+    const posting = new this.postingModel({
+      title: createPostingDto.title,
+      content: createPostingDto.content,
+      user: {
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+      },
+    });
+    await posting.save();
+  }
+
+  async createImage(s3Key: string, user: UserDto): Promise<void> {
+    const posting = new this.postingModel({
+      s3Key: s3Key,
+      user: {
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+      },
+    });
     await posting.save();
   }
 
   async getList(): Promise<Posting[]> {
-    return this.postingModel.find().sort('createdAt desc').exec();
+    return this.postingModel.find().sort({ createdAt: -1 }).limit(50).exec();
   }
 
   async querySearch(searchWords: string): Promise<Posting[]> {
@@ -50,7 +71,7 @@ export class PostingsService {
       .find({
         _id: { $in: ids },
       })
-      .sort('createdAt desc')
+      .sort({ createdAt: -1 })
       .exec();
   }
 }

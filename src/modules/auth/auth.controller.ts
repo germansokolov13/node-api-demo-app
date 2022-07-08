@@ -1,8 +1,9 @@
-import { Controller, Get, HttpStatus, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './user.decorator';
 import { UserDto } from './user.dto';
+import { MainAuthGuard } from './main-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +29,7 @@ export class AuthController {
   }
 
   @Get('/profile')
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(MainAuthGuard)
   getProfile(@User() user: UserDto) {
     return user;
   }

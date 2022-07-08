@@ -18,7 +18,6 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     profile: Profile,
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
-    console.log('profile', profile);
     const user = {
       id: profile.id,
       name: profile.username,

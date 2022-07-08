@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectS3, S3 } from 'nestjs-s3';
+import { EventEmitter } from 'events';
 
 @Injectable()
 export class ImageUploadsService {
+  private readonly finishEvent: EventEmitter = new EventEmitter();
+
   constructor(@InjectS3() private readonly s3: S3) {}
 
   async getImageUploadFields(): Promise<Record<string, string>> {
@@ -38,5 +41,22 @@ export class ImageUploadsService {
     });
 
     return presignedPost.fields;
+  }
+
+  public onFinish(userId: string): Promise<void> {
+    return new Promise((resolve) => {
+      const listener = (e) => {
+        if (e.userId === userId) {
+          resolve();
+          this.finishEvent.removeListener('finish', listener);
+        }
+      };
+
+      this.finishEvent.addListener('finish', listener);
+    });
+  }
+
+  public finishProcessing(userId: string): void {
+    this.finishEvent.emit('finish', { userId });
   }
 }

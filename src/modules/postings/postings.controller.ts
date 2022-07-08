@@ -5,19 +5,21 @@ import {
   Get,
   Post,
   Query,
-  Request,
+  Request, UseGuards,
 } from '@nestjs/common';
 import { PostingsService } from './postings.service';
 import { Posting } from '../../schemas/posting.schema';
 import { CreatePostingDto } from './createPosting.dto';
+import { MainAuthGuard } from '../auth/main-auth.guard';
+import { User } from '../auth/user.decorator';
+import { UserDto } from '../auth/user.dto';
 
 @Controller('postings')
 export class PostingsController {
   constructor(private postingService: PostingsService) {}
 
-  @Get('/get-list')
-  getList(@Request() req): Promise<Posting[]> {
-    console.log(req.user);
+  @Get('/get-latest')
+  getLatest(): Promise<Posting[]> {
     return this.postingService.getList();
   }
 
@@ -30,9 +32,11 @@ export class PostingsController {
   }
 
   @Post('/create')
+  @UseGuards(MainAuthGuard)
   async createPosting(
     @Body() createPostingDto: CreatePostingDto,
+    @User() user: UserDto,
   ): Promise<void> {
-    await this.postingService.create(createPostingDto);
+    await this.postingService.create(createPostingDto, user);
   }
 }
