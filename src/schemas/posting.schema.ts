@@ -15,7 +15,7 @@ export class Posting {
   @Prop()
   content: string;
 
-  @Prop()
+  @Prop({ index: true })
   createdAt: Date;
 
   @Prop()

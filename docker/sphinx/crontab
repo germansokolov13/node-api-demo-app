@@ -1,1 +1,3 @@
-* * * * * indexer --all --rotate -c /etc/sphinxsearch/sphinx.conf >> /var/log/sphinx_cron.log 2>&1
+* * * * * /etc/sphinxsearch/update-index.sh
+* * * * * sleep 20; /etc/sphinxsearch/update-index.sh
+* * * * * sleep 40; /etc/sphinxsearch/update-index.sh

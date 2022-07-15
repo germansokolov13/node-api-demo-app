@@ -1,14 +1,15 @@
 import { Profile, Strategy, StrategyOptions } from 'passport-github';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
+import { config } from '../../env-config';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      clientID: '2bd6867d114a463da985',
-      clientSecret: 'ecf753e11ca5028914d0f8095f07aeda666254db',
-      callbackURL: 'http://localhost:3001/auth/github/redirect',
+      clientID: config.githubOAuth.clientID,
+      clientSecret: config.githubOAuth.clientSecret,
+      callbackURL: config.githubOAuth.clientSecret,
     } as StrategyOptions);
   }
 
@@ -21,6 +22,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
     const user = {
       id: profile.id,
       name: profile.username,
+      // eslint-disable-next-line no-underscore-dangle
       avatar: (profile._json as any).avatar_url,
     };
 

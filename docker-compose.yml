@@ -2,6 +2,10 @@ version: '3.4'
 services:
   sphinx:
     build: docker/sphinx
+    environment:
+      SOURCE_DB: demo-app
+      SOURCE_USER: root
+      SOURCE_PASSWORD: 123456
     depends_on:
       - mongo
     ports:
@@ -9,6 +13,20 @@ services:
     volumes:
       - ./var/sphinx/data:/usr/local/sphinx/var/data/
       - ./var/sphinx/logs:/usr/local/sphinx/var/log/
+    command: sleep infinity
+  sphinx-test:
+    build: docker/sphinx
+    environment:
+      SOURCE_DB: demo-app-test
+      SOURCE_USER: root
+      SOURCE_PASSWORD: 123456
+    depends_on:
+      - mongo
+    ports:
+      - 127.0.0.1:9307:9306
+    volumes:
+      - ./var/sphinx-test/data:/usr/local/sphinx/var/data/
+      - ./var/sphinx-test/logs:/usr/local/sphinx/var/log/
   mongo:
     image: mongo:5.0.9-focal
     environment:
@@ -19,7 +37,7 @@ services:
     volumes:
       - ./var/mongo/data:/data/db
   minio:
-    build: docker/minio
+    image: minio/minio
     environment:
       MINIO_ROOT_USER: root
       MINIO_ROOT_PASSWORD: 12345678

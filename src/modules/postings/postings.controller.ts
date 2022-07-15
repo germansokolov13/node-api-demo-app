@@ -5,7 +5,7 @@ import {
   Get,
   Post,
   Query,
-  Request, UseGuards,
+  UseGuards,
 } from '@nestjs/common';
 import { PostingsService } from './postings.service';
 import { Posting } from '../../schemas/posting.schema';
@@ -20,7 +20,7 @@ export class PostingsController {
 
   @Get('/get-latest')
   getLatest(): Promise<Posting[]> {
-    return this.postingService.getList();
+    return this.postingService.getLatest();
   }
 
   @Get('/search')

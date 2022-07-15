@@ -10,21 +10,20 @@ print(
 
 //echo postings
 let index = 1;
-db.postings.find().forEach(function (posting) {
+db.postings.find({ content: { $exists: true } }).forEach(function (posting) {
   print(
     '<sphinx:document id="' +
-      index +
-      1 +
+    index  +
       '">\n' +
       '    <content>' +
-      posting.content.toString().replace(/[><]/g, '') +
+    (posting.content && posting.content.toString().replace(/[><]/g, '')) +
       ' ' +
-      posting.title.toString().replace(/[><]/g, '') +
+    (posting.title && posting.title.toString().replace(/[><]/g, '')) +
       '</content>\n' + //обязательно убирайте символы < и >
       '<mongoId>' +
       posting._id +
-      '</mongoId>' +
-      '</sphinx:document>\n',
+      '</mongoId>\n' +
+      '</sphinx:document>',
   );
   index += 1;
 });

@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { S3Module } from 'nestjs-s3';
-import { PostingsModule } from './modules/postings/postings.module';
-import { ImageUploadsModule } from './modules/image-uploads/image-uploads.module';
-import { AuthModule } from './modules/auth/auth.module';
-import { config } from './env-config';
+import { ImageConsumerController } from './image-consumer.controller';
+import { Posting, PostingSchema } from '../../schemas/posting.schema';
+import { PostingsService } from '../postings/postings.service';
+import { config } from '../../env-config';
+import { SphinxService } from '../postings/sphinx.service';
 
+// Separate entry-point module for consumer daemon
 @Module({
   imports: [
     MongooseModule.forRoot(config.mongodb.url, {
@@ -22,11 +24,9 @@ import { config } from './env-config';
         signatureVersion: 'v4',
       },
     }),
-    PostingsModule,
-    ImageUploadsModule,
-    AuthModule,
+    MongooseModule.forFeature([{ name: Posting.name, schema: PostingSchema }]),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [ImageConsumerController],
+  providers: [PostingsService, SphinxService],
 })
-export class AppModule {}
+export class ImageConsumerModule {}

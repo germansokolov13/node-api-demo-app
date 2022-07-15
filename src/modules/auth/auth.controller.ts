@@ -1,9 +1,11 @@
-import { Controller, Get, HttpStatus, Req, UseGuards } from '@nestjs/common';
+import {
+ Controller, Get, HttpStatus, UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { User } from './user.decorator';
 import { UserDto } from './user.dto';
-import { MainAuthGuard } from './main-auth.guard';
+import { config } from '../../env-config';
 
 @Controller('auth')
 export class AuthController {
@@ -19,18 +21,10 @@ export class AuthController {
 
   @Get('/github/redirect')
   @UseGuards(AuthGuard('github'))
-  async githubLoginRedirect(@Req() req): Promise<string> {
-    const jwt = this.jwtService.sign(req.user);
+  async githubLoginRedirect(@User() user: UserDto): Promise<string> {
+    const jwt = this.jwtService.sign(user);
     return (
-      "<script>window.opener.postMessage('" +
-      jwt +
-      "', 'http://localhost:3000');</script>"
+      `<script>window.opener.postMessage('${jwt}', '${config.frontendOrigin}');</script>`
     );
-  }
-
-  @Get('/profile')
-  @UseGuards(MainAuthGuard)
-  getProfile(@User() user: UserDto) {
-    return user;
   }
 }

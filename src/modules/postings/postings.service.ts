@@ -1,30 +1,31 @@
-import { Pool, createPool } from 'mysql';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Posting, PostingDocument } from '../../schemas/posting.schema';
 import { Model } from 'mongoose';
+import { Posting, PostingDocument } from '../../schemas/posting.schema';
 import { CreatePostingDto } from './createPosting.dto';
 import { UserDto } from '../auth/user.dto';
+import { SphinxService } from './sphinx.service';
+
+const LATEST_POSTINGS_COUNT = 50;
 
 @Injectable()
 export class PostingsService {
-  sphinxConnectionPool: Pool;
-
   constructor(
     @InjectModel(Posting.name)
-    private readonly postingModel: Model<PostingDocument>,
-  ) {
-    this.sphinxConnectionPool = createPool({
-      connectionLimit: 10,
-      host: 'localhost',
-      port: 9306,
-    });
-  }
+    private readonly PostingModel: Model<PostingDocument>,
+    private readonly sphinxService: SphinxService,
+  ) {}
 
   async create(createPostingDto: CreatePostingDto, user: UserDto): Promise<void> {
-    const posting = new this.postingModel({
-      title: createPostingDto.title,
-      content: createPostingDto.content,
+    const title = createPostingDto.title.trim();
+    const content = createPostingDto.content.trim();
+    if (!title || !content) {
+      throw new BadRequestException('Blank fields not allowed');
+    }
+
+    const posting = new this.PostingModel({
+      title,
+      content,
       user: {
         id: user.id,
         name: user.name,
@@ -35,8 +36,8 @@ export class PostingsService {
   }
 
   async createImage(s3Key: string, user: UserDto): Promise<void> {
-    const posting = new this.postingModel({
-      s3Key: s3Key,
+    const posting = new this.PostingModel({
+      s3Key,
       user: {
         id: user.id,
         name: user.name,
@@ -46,28 +47,19 @@ export class PostingsService {
     await posting.save();
   }
 
-  async getList(): Promise<Posting[]> {
-    return this.postingModel.find().sort({ createdAt: -1 }).limit(50).exec();
+  async getLatest(): Promise<Posting[]> {
+    return this.PostingModel
+      .find()
+      .sort({ createdAt: -1 })
+      .limit(LATEST_POSTINGS_COUNT)
+      .exec();
   }
 
   async querySearch(searchWords: string): Promise<Posting[]> {
-    const indexHits: { mongoid: string }[] = await new Promise(
-      (resolve, reject) => {
-        const query =
-          'SELECT * FROM postings_index WHERE MATCH(?) LIMIT 50 OPTION ranker=bm25';
-        this.sphinxConnectionPool.query(query, [searchWords], (err, result) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(result);
-        });
-      },
-    );
+    const query = 'SELECT * FROM postings_index WHERE MATCH(?) LIMIT 50 OPTION ranker=bm25';
+    const ids = await this.sphinxService.searchIds(query, searchWords);
 
-    const ids = indexHits.map((hit) => hit.mongoid);
-
-    return this.postingModel
+    return this.PostingModel
       .find({
         _id: { $in: ids },
       })

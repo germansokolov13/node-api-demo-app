@@ -1,3 +1,36 @@
 export const config = {
   frontendOrigin: 'http://localhost:3000',
+  port: 3001,
+  auth: {
+    secret: 'secret-token-change-it',
+    expiresIn: '120 minutes',
+  },
+  githubOAuth: {
+    clientID: 'github-oauth-client-id',
+    clientSecret: 'github-oauth-secret',
+    callbackURL: 'http://localhost:3001/auth/github/redirect',
+  },
+  mongodb: {
+    url: 'mongodb://localhost',
+    dbName: 'demo-app',
+    user: 'root',
+    pass: '123456',
+  },
+  s3: {
+    accessKeyId: 'root',
+    secretAccessKey: '12345678',
+    endpoint: 'http://127.0.0.1:9000',
+    uploadBucket: 'image-uploads',
+    servedBucket: 'image-upload-results',
+    maxFileSize: 1024 * 1024 * 3, // 3 Mib
+  },
+  rabbitMq: {
+    url: 'amqp://localhost:5672',
+    queue: 'image-uploads',
+  },
+  sphinx: {
+    connectionLimit: 50,
+    host: 'localhost',
+    port: 9306,
+  },
 };

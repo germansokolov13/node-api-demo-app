@@ -2,15 +2,7 @@ FROM mongo:5.0.9-focal
 
 RUN apt-get update && apt-get install -y \
     sphinxsearch \
-    cron \
-    wget
-
-#RUN wget https://sphinxsearch.com/files/sphinx-3.4.1-efbcc65-linux-amd64-musl.tar.gz -O /tmp/sphinxsearch.tar.gz \
-#    && mkdir /opt/sphinx \
-#	&& tar -xf /tmp/sphinxsearch.tar.gz -C /opt/sphinx \
-#	&& rm /tmp/sphinxsearch.tar.gz
-#
-#ENV PATH "${PATH}:/opt/sphinx/sphinx-3.4.1/bin"
+    cron
 
 RUN mkdir -p /usr/local/var/data/ \
   && mkdir -p /usr/local/var/log/ \
@@ -29,6 +21,9 @@ RUN chmod 0644 /etc/cron.d/crontab \
 
 ADD sphinx.conf /etc/sphinxsearch/sphinx.conf
 ADD postings-indexer.js /etc/sphinxsearch/postings-indexer.js
+ADD update-index.sh /etc/sphinxsearch/update-index.sh
+ADD get-xml.sh /etc/sphinxsearch/get-xml.sh
+RUN chmod +x /etc/sphinxsearch/get-xml.sh
 
 CMD indexer -c /etc/sphinxsearch/sphinx.conf --all \
    && cron \
