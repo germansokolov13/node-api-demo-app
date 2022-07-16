@@ -20,6 +20,9 @@ export class Posting {
 
   @Prop()
   s3Key: string;
+
+  @Prop()
+  deletedAt: Date;
 }
 
 export const PostingSchema = SchemaFactory.createForClass(Posting);

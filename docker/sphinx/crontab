@@ -1,3 +1,9 @@
-* * * * * /etc/sphinxsearch/update-index.sh
-* * * * * sleep 20; /etc/sphinxsearch/update-index.sh
-* * * * * sleep 40; /etc/sphinxsearch/update-index.sh
+* * * * * bash /etc/sphinxsearch/update-index.sh
+* * * * * sleep 20; bash /etc/sphinxsearch/update-index.sh
+* * * * * sleep 40; bash /etc/sphinxsearch/update-index.sh
+#* * * * * bash -c "/etc/sphinxsearch/get-xml.sh >/var/log/wtf 2>/var/log/wtf2"
+#* * * * * whoami >/var/log/whoami
+#* * * * * bash -c "whoami >/var/log/whoami2"
+#* * * * * bash -c "echo $USER >/var/log/whoami1"
+#* * * * * bash -c "which mongosh >/var/log/which"
+#* * * * * echo  "mongosh --authenticationDatabase admin -u $SOURCE_USER -p $SOURCE_PASSWORD --host mongo '$SOURCE_DB' --quiet /etc/sphinxsearch/postings-indexer.js" >/var/log/cmd

@@ -8,7 +8,7 @@ import { createUser } from '../utils/create-user';
 import { updateSphinxIndex } from '../utils/update-sphinx-index';
 import { PostingDocument } from '../../src/schemas/posting.schema';
 
-describe('Search', function () {
+describe.only('Search', function () {
   let app: INestApplication;
 
   before(async function () {
@@ -41,5 +41,35 @@ describe('Search', function () {
     const found = items.findIndex((item) => item.title === posting.title.trim());
 
     expect(found).not.to.equal(-1);
+  });
+
+  it('should not find deleted messages', async function () {
+    const [authToken] = createUser(app);
+    const searchWord = faker.lorem.word(8);
+    const posting = {
+      title: `${faker.lorem.sentence()} ${searchWord} ${faker.lorem.sentence()} `,
+      content: faker.lorem.paragraph(),
+    };
+    await request(app.getHttpServer())
+      .post('/postings/create')
+      .auth(authToken, { type: 'bearer' })
+      .send(posting);
+
+    const getListResponse = await request(app.getHttpServer())
+      .get('/postings/get-latest');
+    const createdRecord = getListResponse.body[0];
+    await request(app.getHttpServer())
+      .post('/postings/delete')
+      .auth(authToken, { type: 'bearer' })
+      .send({ id: createdRecord._id });
+
+    updateSphinxIndex();
+
+    const searchResponse = await request(app.getHttpServer())
+      .get(`/postings/search?query=${searchWord}`);
+    const items: PostingDocument[] = searchResponse.body;
+    const found = items.findIndex((item) => item.title === posting.title.trim());
+
+    expect(found).to.equal(-1);
   });
 });

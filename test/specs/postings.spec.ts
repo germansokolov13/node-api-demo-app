@@ -89,4 +89,60 @@ describe('Postings', function () {
     const lastTitle = list.length > 0 ? list[0].title : null;
     expect(lastTitle).to.not.equal(posting.title);
   });
+
+  it('should delete posting', async function () {
+    const [authToken] = createUser(app);
+    const posting = {
+      title: faker.lorem.sentence(),
+      content: faker.lorem.paragraph(),
+    };
+    await request(app.getHttpServer())
+      .post('/postings/create')
+      .auth(authToken, { type: 'bearer' })
+      .send(posting);
+
+    const getListResponse = await request(app.getHttpServer())
+      .get('/postings/get-latest');
+    const createdRecord = getListResponse.body[0];
+    expect(createdRecord.title).to.equal(posting.title);
+
+    await request(app.getHttpServer())
+      .post('/postings/delete')
+      .auth(authToken, { type: 'bearer' })
+      .send({ id: createdRecord._id });
+
+    const getListAgainResponse = await request(app.getHttpServer())
+      .get('/postings/get-latest');
+    const list = getListAgainResponse.body;
+    const lastTitle = list.length > 0 ? list[0].title : null;
+    expect(lastTitle).to.not.equal(posting.title);
+  });
+
+  it('should not delete somebody else\'s posting', async function () {
+    const [theirAuthToken] = createUser(app);
+    const posting = {
+      title: faker.lorem.sentence(),
+      content: faker.lorem.paragraph(),
+    };
+    await request(app.getHttpServer())
+      .post('/postings/create')
+      .auth(theirAuthToken, { type: 'bearer' })
+      .send(posting);
+
+    const getListResponse = await request(app.getHttpServer())
+      .get('/postings/get-latest');
+    const createdRecord = getListResponse.body[0];
+
+    const [myAuthToken] = createUser(app);
+    const deleteResponse = await request(app.getHttpServer())
+      .post('/postings/delete')
+      .auth(myAuthToken, { type: 'bearer' })
+      .send({ id: createdRecord._id });
+    expect(deleteResponse.status).to.equal(403);
+
+    const getListAgainResponse = await request(app.getHttpServer())
+      .get('/postings/get-latest');
+    const recordRemaining = getListAgainResponse.body[0];
+    expect(recordRemaining.title).to.equal(posting.title);
+  });
 });

@@ -5,7 +5,6 @@ import { ImageConsumerController } from './image-consumer.controller';
 import { Posting, PostingSchema } from '../../schemas/posting.schema';
 import { PostingsService } from '../postings/postings.service';
 import { config } from '../../env-config';
-import { SphinxService } from '../postings/sphinx.service';
 
 // Separate entry-point module for consumer daemon
 @Module({
@@ -27,6 +26,6 @@ import { SphinxService } from '../postings/sphinx.service';
     MongooseModule.forFeature([{ name: Posting.name, schema: PostingSchema }]),
   ],
   controllers: [ImageConsumerController],
-  providers: [PostingsService, SphinxService],
+  providers: [PostingsService],
 })
 export class ImageConsumerModule {}

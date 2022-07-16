@@ -19,6 +19,7 @@ module.exports = {
         '@typescript-eslint/no-unused-expressions': 'off',
         'prefer-arrow-callback': 'off',
         'func-names': 'off',
+        'no-underscore-dangle': ['error', { allow: ['_id'] }]
       }
     }
   ]

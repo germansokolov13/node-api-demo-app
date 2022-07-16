@@ -16,15 +16,19 @@ RUN mkdir -p /usr/local/var/data/ \
 
 ADD crontab /etc/cron.d/crontab
 RUN chmod 0644 /etc/cron.d/crontab \
-  && crontab /etc/cron.d/crontab \
-  && touch /var/log/sphinx_cron.log
+  && crontab -u root /etc/cron.d/crontab \
+  && mkdir -p /var/log/sphinx/ \
+  && touch /var/log/sphinx/cron.log \
+  && touch /var/log/sphinx/xmlpipe_error.log
 
 ADD sphinx.conf /etc/sphinxsearch/sphinx.conf
 ADD postings-indexer.js /etc/sphinxsearch/postings-indexer.js
 ADD update-index.sh /etc/sphinxsearch/update-index.sh
 ADD get-xml.sh /etc/sphinxsearch/get-xml.sh
-RUN chmod +x /etc/sphinxsearch/get-xml.sh
+RUN chmod +x /etc/sphinxsearch/get-xml.sh \
+    && chmod +x /etc/sphinxsearch/update-index.sh
 
-CMD indexer -c /etc/sphinxsearch/sphinx.conf --all \
+CMD printenv | grep -v "no_proxy" >> /etc/environment \
+   && indexer -c /etc/sphinxsearch/sphinx.conf --all \
    && cron \
    && searchd -c /etc/sphinxsearch/sphinx.conf --nodetach "$@"

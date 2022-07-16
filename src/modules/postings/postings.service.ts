@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+ BadRequestException, ForbiddenException, Injectable, NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Posting, PostingDocument } from '../../schemas/posting.schema';
 import { CreatePostingDto } from './createPosting.dto';
 import { UserDto } from '../auth/user.dto';
-import { SphinxService } from './sphinx.service';
 
 const LATEST_POSTINGS_COUNT = 50;
 
@@ -13,7 +14,6 @@ export class PostingsService {
   constructor(
     @InjectModel(Posting.name)
     private readonly PostingModel: Model<PostingDocument>,
-    private readonly sphinxService: SphinxService,
   ) {}
 
   async create(createPostingDto: CreatePostingDto, user: UserDto): Promise<void> {
@@ -47,23 +47,27 @@ export class PostingsService {
     await posting.save();
   }
 
-  async getLatest(): Promise<Posting[]> {
-    return this.PostingModel
-      .find()
-      .sort({ createdAt: -1 })
-      .limit(LATEST_POSTINGS_COUNT)
-      .exec();
+  async delete(id: string, userId: string): Promise<void> {
+    const posting = await this.PostingModel.findOne({
+      _id: id,
+      deletedAt: { $exists: false },
+    });
+    if (!posting) {
+      throw new NotFoundException();
+    }
+    if (posting.user.id !== userId) {
+      throw new ForbiddenException();
+    }
+
+    posting.deletedAt = new Date();
+    await posting.save();
   }
 
-  async querySearch(searchWords: string): Promise<Posting[]> {
-    const query = 'SELECT * FROM postings_index WHERE MATCH(?) LIMIT 50 OPTION ranker=bm25';
-    const ids = await this.sphinxService.searchIds(query, searchWords);
-
+  async getLatest(): Promise<Posting[]> {
     return this.PostingModel
-      .find({
-        _id: { $in: ids },
-      })
+      .find({ deletedAt: { $exists: false } })
       .sort({ createdAt: -1 })
+      .limit(LATEST_POSTINGS_COUNT)
       .exec();
   }
 }

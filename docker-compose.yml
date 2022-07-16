@@ -12,8 +12,7 @@ services:
       - 127.0.0.1:9306:9306
     volumes:
       - ./var/sphinx/data:/usr/local/sphinx/var/data/
-      - ./var/sphinx/logs:/usr/local/sphinx/var/log/
-    command: sleep infinity
+#      - ./var/sphinx/logs:/usr/local/sphinx/var/log/
   sphinx-test:
     build: docker/sphinx
     environment:

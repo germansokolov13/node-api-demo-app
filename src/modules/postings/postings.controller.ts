@@ -13,10 +13,14 @@ import { CreatePostingDto } from './createPosting.dto';
 import { MainAuthGuard } from '../auth/main-auth.guard';
 import { User } from '../auth/user.decorator';
 import { UserDto } from '../auth/user.dto';
+import { SphinxService } from './sphinx.service';
 
 @Controller('postings')
 export class PostingsController {
-  constructor(private postingService: PostingsService) {}
+  constructor(
+    private readonly postingService: PostingsService,
+    private readonly sphinxService: SphinxService,
+  ) {}
 
   @Get('/get-latest')
   getLatest(): Promise<Posting[]> {
@@ -28,7 +32,7 @@ export class PostingsController {
     if (!query || query.replace(/\s/g, '').length === 0) {
       throw new BadRequestException('query is not defined');
     }
-    return this.postingService.querySearch(query);
+    return this.sphinxService.querySearch(query);
   }
 
   @Post('/create')
@@ -38,5 +42,14 @@ export class PostingsController {
     @User() user: UserDto,
   ): Promise<void> {
     await this.postingService.create(createPostingDto, user);
+  }
+
+  @Post('/delete')
+  @UseGuards(MainAuthGuard)
+  async delete(
+    @Body('id') id: string,
+    @User() user: UserDto,
+  ): Promise<void> {
+    await this.postingService.delete(id, user.id);
   }
 }
