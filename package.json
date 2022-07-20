@@ -1,10 +1,7 @@
 {
   "name": "node-api-demo-app",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "author": "Gherman Sokolov",
+  "license": "MIT",
   "engines": {
     "node": "16"
   },
