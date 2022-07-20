@@ -5,6 +5,7 @@ import { ImageConsumerController } from './image-consumer.controller';
 import { Posting, PostingSchema } from '../../schemas/posting.schema';
 import { PostingsService } from '../postings/postings.service';
 import { config } from '../../env-config';
+import { ManticoreSearch } from '../postings/manticore-search.service';
 
 // Separate entry-point module for consumer daemon
 @Module({
@@ -26,6 +27,6 @@ import { config } from '../../env-config';
     MongooseModule.forFeature([{ name: Posting.name, schema: PostingSchema }]),
   ],
   controllers: [ImageConsumerController],
-  providers: [PostingsService],
+  providers: [PostingsService, ManticoreSearch],
 })
 export class ImageConsumerModule {}

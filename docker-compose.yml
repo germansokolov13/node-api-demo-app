@@ -1,31 +1,18 @@
-version: '3.4'
 services:
-  sphinx:
-    build: docker/sphinx
-    environment:
-      SOURCE_DB: demo-app
-      SOURCE_USER: root
-      SOURCE_PASSWORD: 123456
-    depends_on:
-      - mongo
+  manticore:
+    image: manticoresearch/manticore
     ports:
-      - 127.0.0.1:9306:9306
+      - 127.0.0.1:9308:9308
     volumes:
-      - ./var/sphinx/data:/usr/local/sphinx/var/data/
-#      - ./var/sphinx/logs:/usr/local/sphinx/var/log/
-  sphinx-test:
-    build: docker/sphinx
-    environment:
-      SOURCE_DB: demo-app-test
-      SOURCE_USER: root
-      SOURCE_PASSWORD: 123456
-    depends_on:
-      - mongo
+      - ./var/sphinx/data:/var/lib/manticore/data
+      - ./docker/manticore/manticore.conf:/etc/manticoresearch/manticore.conf
+  manticore-test:
+    image: manticoresearch/manticore
     ports:
-      - 127.0.0.1:9307:9306
+      - 127.0.0.1:9309:9308
     volumes:
-      - ./var/sphinx-test/data:/usr/local/sphinx/var/data/
-      - ./var/sphinx-test/logs:/usr/local/sphinx/var/log/
+      - ./var/manticore-test/data:/var/lib/manticore/data
+      - ./docker/manticore/manticore.conf:/etc/manticoresearch/manticore.conf
   mongo:
     image: mongo:5.0.9-focal
     environment:
@@ -46,6 +33,20 @@ services:
     volumes:
       - ./var/minio/data:/data
     command: server /data --console-address ":9001"
+    healthcheck:
+      test: curl -I http://localhost:9000/minio/health/live
+      interval: 5s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+  minio-setup:
+    build: docker/minio-setup
+    environment:
+      MINIO_ROOT_USER: root
+      MINIO_ROOT_PASSWORD: 12345678
+    depends_on:
+      minio:
+        condition: service_healthy
   rabbitmq:
     image: rabbitmq:management-alpine
     ports:

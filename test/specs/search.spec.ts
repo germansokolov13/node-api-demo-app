@@ -5,10 +5,9 @@ import { faker } from '@faker-js/faker';
 import { initApp } from '../utils/init-app';
 import { teardownMongo } from '../utils/teardown-mongo';
 import { createUser } from '../utils/create-user';
-import { updateSphinxIndex } from '../utils/update-sphinx-index';
 import { PostingDocument } from '../../src/schemas/posting.schema';
 
-describe.only('Search', function () {
+describe('Search', function () {
   let app: INestApplication;
 
   before(async function () {
@@ -32,8 +31,6 @@ describe.only('Search', function () {
       .post('/postings/create')
       .auth(authToken, { type: 'bearer' })
       .send(posting);
-
-    updateSphinxIndex();
 
     const searchResponse = await request(app.getHttpServer())
       .get(`/postings/search?query=${searchWord}`);
@@ -62,8 +59,6 @@ describe.only('Search', function () {
       .post('/postings/delete')
       .auth(authToken, { type: 'bearer' })
       .send({ id: createdRecord._id });
-
-    updateSphinxIndex();
 
     const searchResponse = await request(app.getHttpServer())
       .get(`/postings/search?query=${searchWord}`);

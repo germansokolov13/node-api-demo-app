@@ -13,13 +13,11 @@ import { CreatePostingDto } from './createPosting.dto';
 import { MainAuthGuard } from '../auth/main-auth.guard';
 import { User } from '../auth/user.decorator';
 import { UserDto } from '../auth/user.dto';
-import { SphinxService } from './sphinx.service';
 
 @Controller('postings')
 export class PostingsController {
   constructor(
     private readonly postingService: PostingsService,
-    private readonly sphinxService: SphinxService,
   ) {}
 
   @Get('/get-latest')
@@ -32,7 +30,7 @@ export class PostingsController {
     if (!query || query.replace(/\s/g, '').length === 0) {
       throw new BadRequestException('query is not defined');
     }
-    return this.sphinxService.querySearch(query);
+    return this.postingService.search(query);
   }
 
   @Post('/create')
