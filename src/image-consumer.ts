@@ -12,6 +12,11 @@ async function bootstrap() {
       options: {
         urls: [config.rabbitMq.url],
         queue: config.rabbitMq.queue,
+        prefetchCount: config.rabbitMq.prefetchCount,
+        noAck: false,
+        socketOptions: {
+          heartbeat: 5,
+        },
       },
     },
   );

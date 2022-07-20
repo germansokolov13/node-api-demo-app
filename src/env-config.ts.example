@@ -1,18 +1,20 @@
+const isTest = process.env.NODE_ENV === 'test';
+
 export const config = {
   frontendOrigin: 'http://localhost:3000',
   port: 3001,
   auth: {
-    secret: 'secret-token-change-it',
+    secret: 'sdf sdf sfsd fsdf sdfsddddd',
     expiresIn: '120 minutes',
   },
   githubOAuth: {
-    clientID: 'github-oauth-client-id',
-    clientSecret: 'github-oauth-secret',
+    clientID: '2bd6867d114a463da985',
+    clientSecret: 'ecf753e11ca5028914d0f8095f07aeda666254db',
     callbackURL: 'http://localhost:3001/auth/github/redirect',
   },
   mongodb: {
     url: 'mongodb://localhost',
-    dbName: 'demo-app',
+    dbName: isTest ? 'demo-app-test' : 'demo-app',
     user: 'root',
     pass: '123456',
   },
@@ -20,17 +22,16 @@ export const config = {
     accessKeyId: 'root',
     secretAccessKey: '12345678',
     endpoint: 'http://127.0.0.1:9000',
-    uploadBucket: 'image-uploads',
-    servedBucket: 'image-upload-results',
+    uploadBucket: isTest ? 'image-uploads-test' : 'image-uploads',
+    servedBucket: isTest ? 'image-upload-results-test' : 'image-upload-results',
     maxFileSize: 1024 * 1024 * 3, // 3 Mib
   },
   rabbitMq: {
     url: 'amqp://localhost:5672',
-    queue: 'image-uploads',
+    queue: isTest ? 'image-uploads-test' : 'image-uploads',
+    prefetchCount: 2, // max number of images processed at a time
   },
-  sphinx: {
-    connectionLimit: 50,
-    host: 'localhost',
-    port: 9306,
+  manticore: {
+    url: isTest ? 'http://localhost:9309' : 'http://localhost:9308',
   },
 };

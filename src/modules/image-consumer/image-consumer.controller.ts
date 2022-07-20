@@ -1,5 +1,5 @@
 import { Controller, Logger } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { InjectS3, S3 } from 'nestjs-s3';
 import { PostingsService } from '../postings/postings.service';
 import { config } from '../../env-config';
@@ -18,7 +18,8 @@ export class ImageConsumerController {
 
   @MessagePattern('process-image')
   async processImage(
-    { s3Key, user }: { s3Key: string, user: UserDto },
+    @Payload() { s3Key, user }: { s3Key: string, user: UserDto },
+    @Ctx() context: RmqContext,
   ): Promise<ImageProcessingResponseDto> {
     try {
       this.logger.log('start processing', { s3Key });
@@ -42,6 +43,9 @@ export class ImageConsumerController {
     } catch (e) {
       this.logger.error(e, { s3Key, e });
       return { isSuccess: false, error: 'Error while processing image' };
+    } finally {
+      // Manual ack helps use prefetch_count to rate limit consumer
+      context.getChannelRef().ack(context.getMessage());
     }
   }
 }
