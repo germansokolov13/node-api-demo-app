@@ -15,7 +15,7 @@ export class AuthController {
 
   // This extra step is made to show user words "Logging in.."
   // instead of otherwise empty white screen
-  @Get('/github-pre')
+  @Get('/github/pre')
   async githubInit(): Promise<any> {
     return '<title>Logging in...</title>'
       + 'Logging in... It may take a couple of seconds'
