@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-api-deployment
+  labels:
+    app: node-api-demo-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: node-api-demo-app
+      component: http-api
+  template:
+    metadata:
+      labels:
+        app: node-api-demo-app
+        component: http-api
+    spec:
+      containers:
+        - name: http-api
+          image: node-api-demo-app-http-api:0.1.2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001

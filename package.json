@@ -8,6 +8,7 @@
   "scripts": {
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
+    "build": "nest build",
     "test": "NODE_ENV=test ts-mocha --timeout 10000 test/specs/**/*.spec.ts"
   },
   "dependencies": {

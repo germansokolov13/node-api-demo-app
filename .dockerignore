@@ -1,0 +1,14 @@
+/dist/
+/docker/
+/kubernetes/
+/node_modules/
+/var/
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
