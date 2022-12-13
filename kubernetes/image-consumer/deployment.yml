@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
         - name: image-consumer
-          image: image-consumer:0.1.2
+          image: node-api-demo-app-image-consumer:0.1.9
+          imagePullPolicy: Never
           resources:
             requests:
               memory: "64Mi"
