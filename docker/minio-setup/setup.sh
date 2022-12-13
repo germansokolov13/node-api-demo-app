@@ -7,7 +7,7 @@ mc mb --ignore-existing local/image-upload-results
 mc mb --ignore-existing local/image-uploads-test
 mc mb --ignore-existing local/image-upload-results-test
 
-mc policy set none local/image-uploads
-mc policy set none local/image-uploads-test
-mc policy set download local/image-upload-results
-mc policy set download local/image-upload-results-test
+mc anonymous set none local/image-uploads
+mc anonymous set none local/image-uploads-test
+mc anonymous set download local/image-upload-results
+mc anonymous set download local/image-upload-results-test
