@@ -4,7 +4,7 @@ by Gherman Sokolov
 This is API. It's frontend on React is here:\
 https://github.com/germansokolov13/react-demo-app \
 Deployed with docker-compose(infrastructure) and Minikube(Node.js workers):\
-https://demo-app.tk
+https://gherman-demo-app.xyz
 
 
 ### About design
