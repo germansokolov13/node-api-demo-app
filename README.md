@@ -2,8 +2,7 @@
 by Gherman Sokolov
 
 This is API. It's frontend on React is here:\
-https://github.com/germansokolov13/react-demo-app \
-
+https://github.com/germansokolov13/react-demo-app
 
 ### About design
 The app is meant purely as a demo for potential employers and that's why it's considerably over-engineered for its real size
